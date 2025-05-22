@@ -260,3 +260,12 @@ new CronJob('0 40 17 * * *', async () => {
 
 console.log('🚀 Скрипт запущен. Ожидаем события...');
 
+const now = new Date();
+const formatted = new Intl.DateTimeFormat('ru-RU', {
+    timeZone: 'Asia/Almaty',
+    dateStyle: 'full',
+    timeStyle: 'long'
+}).format(now);
+
+console.log(`🕒 Время в Asia/Almaty: ${formatted}`);
+
