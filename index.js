@@ -1,10 +1,18 @@
 const fetch = require('node-fetch');
 const cron = require('node-cron');
+const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+    res.send('Bot is alive');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Express server listening on port ${PORT}`);
+});
 
 // Замените эти значения своими
-const TELEGRAM_BOT_TOKEN = '7705868837:AAGfYoAJ-wjW47jfd7HDK3I0Z-uiKT4BlmU';
-const CHAT_ID = '-4934801467'; // для групп — обычно начинается с минуса
-// const CHAT_ID = '-4832274144'; // для групп — обычно начинается с минуса
 const TARGET_DATE = new Date('2025-07-06'); // Дата, до которой считаем
 
 function getRemainingDays(target) {
