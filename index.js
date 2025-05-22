@@ -37,14 +37,18 @@ async function sendMessage(text) {
 cron.schedule('0 10 * * *', async () => {
     const daysLeft = getRemainingDays(TARGET_DATE);
     const message = `До ${TARGET_DATE.toDateString()} осталось ${daysLeft} дней.`;
+    console.log('пытаюсь отправить сообщение с отсчетом');
     await sendMessage(message);
+    console.log('пытаюсь отправил сообщение с отсчетом');
 }, {
     timezone: 'Asia/Almaty'
 });
 
 cron.schedule('30 16 * * *', async () => {
     const message = 'Че там, @konurovjunior, летишь?';
+    console.log('пытаюсь отправить сообщение Мерге');
     await sendMessage(message);
+    console.log('отправил сообщение Мерге');
 }, {
     timezone: 'Asia/Almaty'
 });
@@ -232,7 +236,7 @@ const phuketCoffeeshops = [
     }
 ];
 
-let pointer = 0;
+let pointer = 1;
 
 const sendShop = () => {
     if (pointer !== phuketCoffeeshops.length - 1) {
@@ -246,11 +250,18 @@ const sendShop = () => {
         `Подробнее можно почитать в ${currentShop.url}.`;
 }
 
-sendMessage(sendShop());
+try {
+    console.log('пытаюсь отправить инит шопов');
+    await sendMessage(sendShop());
+} catch (e) {
+    console.log('не получилось отправить инит шопов')
+}
 
-cron.schedule('00 11 * * *', async () => {
+cron.schedule('30 17 * * *', async () => {
     const message = sendShop();
+    console.log('пытаюсь отправить сообщение с шопами');
     await sendMessage(message);
+    console.log('отправил сообщение с шопами');
 }, {
     timezone: 'Asia/Almaty'
 });
