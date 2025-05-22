@@ -1,26 +1,32 @@
 const fetch = require('node-fetch');
-const cron = require('node-cron');
 const express = require('express');
+const { CronJob } = require('cron');
 const app = express();
 
+if (!process.env.TELEGRAM_BOT_TOKEN || !process.env.CHAT_ID) {
+    console.error('❌ TELEGRAM_BOT_TOKEN или CHAT_ID не установлены');
+    process.exit(1);
+}
+
+const PORT = process.env.PORT || 3000;
 app.get('/', (req, res) => {
     res.send('Bot is alive');
 });
-
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Express server listening on port ${PORT}`);
+    console.log(`✅ Express server listening on port ${PORT}`);
 });
 
-// Замените эти значения своими
-const TARGET_DATE = new Date('2025-07-06'); // Дата, до которой считаем
+// 🎯 Целевая дата
+const TARGET_DATE = new Date('2025-07-06');
 
+// 📅 Подсчёт оставшихся дней
 function getRemainingDays(target) {
     const now = new Date();
     const diffTime = target - now;
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
 }
 
+// 📤 Отправка сообщений
 async function sendMessage(text) {
     const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
     await fetch(url, {
@@ -33,26 +39,7 @@ async function sendMessage(text) {
     });
 }
 
-// Планируем запуск каждый день в 10:00 утра
-cron.schedule('0 10 * * *', async () => {
-    const daysLeft = getRemainingDays(TARGET_DATE);
-    const message = `До ${TARGET_DATE.toDateString()} осталось ${daysLeft} дней.`;
-    console.log('пытаюсь отправить сообщение с отсчетом');
-    await sendMessage(message);
-    console.log('пытаюсь отправил сообщение с отсчетом');
-}, {
-    timezone: 'Asia/Almaty'
-});
-
-cron.schedule('30 16 * * *', async () => {
-    const message = 'Че там, @konurovjunior, летишь?';
-    console.log('пытаюсь отправить сообщение Мерге');
-    await sendMessage(message);
-    console.log('отправил сообщение Мерге');
-}, {
-    timezone: 'Asia/Almaty'
-});
-
+// 📋 Список заведений
 const phuketCoffeeshops = [
     {
         name: "Phuket Cannabis Café",
@@ -236,34 +223,44 @@ const phuketCoffeeshops = [
     }
 ];
 
-let pointer = 1;
-
-const sendShop = () => {
+let pointer = 0;
+function sendShop() {
     if (pointer !== phuketCoffeeshops.length - 1) {
-        pointer = pointer + 1;
+        pointer += 1;
     } else {
         pointer = 0;
     }
-    const currentShop = phuketCoffeeshops[pointer];
-    return `Предлагаю вам посетить прекрасный ${currentShop.name} в ` +
-        `${currentShop.location}, ведь это ${currentShop.description}.` +
-        `Подробнее можно почитать в ${currentShop.url}.`;
+    const current = phuketCoffeeshops[pointer];
+    return `Предлагаю вам посетить прекрасный ${current.name} в ${current.location}, ` +
+        `ведь это ${current.description}. Подробнее: ${current.url}`;
 }
 
-try {
-    console.log('пытаюсь отправить инит шопов');
-    sendMessage(sendShop());
-} catch (e) {
-    console.log('не получилось отправить инит шопов')
-}
-
-cron.schedule('30 17 * * *', async () => {
-    const message = sendShop();
-    console.log('пытаюсь отправить сообщение с шопами');
+// 🕘 Cron: каждый день в 10:00
+new CronJob('0 0 10 * * *', async () => {
+    const daysLeft = getRemainingDays(TARGET_DATE);
+    const message = `До ${TARGET_DATE.toDateString()} осталось ${daysLeft} дней.`;
+    console.log('[10:00] Отправка дня:', message);
     await sendMessage(message);
-    console.log('отправил сообщение с шопами');
-}, {
-    timezone: 'Asia/Almaty'
-});
+}, null, true, 'Asia/Almaty');
 
-console.log('Скрипт запущен. Ожидаем 10:00 каждый день...');
+// 🕓 Cron: каждый день в 16:30
+new CronJob('0 30 16 * * *', async () => {
+    const message = 'Че там, @konurovjunior, летишь?';
+    console.log('[16:30] Проверка полета');
+    await sendMessage(message);
+}, null, true, 'Asia/Almaty');
+
+// 🕚 Cron: каждый день в 11:00 — предложить кофешоп
+new CronJob('0 0 11 * * *', async () => {
+    const message = sendShop();
+    console.log('[11:00] Предложение кофешопа');
+    await sendMessage(message);
+}, null, true, 'Asia/Almaty');
+
+// 🕒 Каждые 3 секунды (для проверки)
+new CronJob('*/3 * * * * *', () => {
+    console.log(`[${new Date().toISOString()}] 🔁 Тестовая задача каждые 3 секунды`);
+}, null, true, 'Asia/Almaty');
+
+console.log('🚀 Скрипт запущен. Ожидаем события...');
+
