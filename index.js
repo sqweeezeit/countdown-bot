@@ -252,7 +252,7 @@ const sendShop = () => {
 
 try {
     console.log('пытаюсь отправить инит шопов');
-    await sendMessage(sendShop());
+    sendMessage(sendShop());
 } catch (e) {
     console.log('не получилось отправить инит шопов')
 }
