@@ -1,0 +1,48 @@
+const fetch = require('node-fetch');
+const cron = require('node-cron');
+
+// Замените эти значения своими
+const TELEGRAM_BOT_TOKEN = '7705868837:AAGfYoAJ-wjW47jfd7HDK3I0Z-uiKT4BlmU';
+const CHAT_ID = '-4934801467'; // для групп — обычно начинается с минуса
+// const CHAT_ID = '-4832274144'; // для групп — обычно начинается с минуса
+const TARGET_DATE = new Date('2025-07-06'); // Дата, до которой считаем
+
+function getRemainingDays(target) {
+    const now = new Date();
+    const diffTime = target - now;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+async function sendMessage(text) {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text,
+        }),
+    });
+}
+
+// Планируем запуск каждый день в 10:00 утра
+cron.schedule('0 16 * * *', async () => {
+    const daysLeft = getRemainingDays(TARGET_DATE);
+    const message = `До ${TARGET_DATE.toDateString()} осталось ${daysLeft} дней.`;
+    await sendMessage(message);
+}, {
+    timezone: 'Asia/Almaty'
+});
+
+cron.schedule('2 16 * * *', async () => {
+    const daysLeft = getRemainingDays(TARGET_DATE);
+    const message = 'Че там, @konurovjunior, летишь?';
+    await sendMessage(message);
+}, {
+    timezone: 'Asia/Almaty'
+});
+
+const daysLeft = getRemainingDays(TARGET_DATE);
+sendMessage(`До ${TARGET_DATE.toDateString()} осталось ${daysLeft} дней.`);
+
+console.log('Скрипт запущен. Ожидаем 10:00 каждый день...');
