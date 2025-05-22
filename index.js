@@ -251,16 +251,12 @@ new CronJob('0 30 16 * * *', async () => {
 }, null, true, 'Asia/Almaty');
 
 // 🕚 Cron: каждый день в 11:00 — предложить кофешоп
-new CronJob('0 0 11 * * *', async () => {
+new CronJob('0 40 17 * * *', async () => {
     const message = sendShop();
     console.log('[11:00] Предложение кофешопа');
     await sendMessage(message);
 }, null, true, 'Asia/Almaty');
 
-// 🕒 Каждые 3 секунды (для проверки)
-new CronJob('*/3 * * * * *', () => {
-    console.log(`[${new Date().toISOString()}] 🔁 Тестовая задача каждые 3 секунды`);
-}, null, true, 'Asia/Almaty');
 
 console.log('🚀 Скрипт запущен. Ожидаем события...');
 
