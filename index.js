@@ -18,7 +18,7 @@ const TARGET_DATE = new Date('2025-07-06'); // Дата, до которой с�
 function getRemainingDays(target) {
     const now = new Date();
     const diffTime = target - now;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
 }
 
 async function sendMessage(text) {
@@ -34,7 +34,7 @@ async function sendMessage(text) {
 }
 
 // Планируем запуск каждый день в 10:00 утра
-cron.schedule('0 16 * * *', async () => {
+cron.schedule('0 10 * * *', async () => {
     const daysLeft = getRemainingDays(TARGET_DATE);
     const message = `До ${TARGET_DATE.toDateString()} осталось ${daysLeft} дней.`;
     await sendMessage(message);
@@ -42,7 +42,7 @@ cron.schedule('0 16 * * *', async () => {
     timezone: 'Asia/Almaty'
 });
 
-cron.schedule('2 16 * * *', async () => {
+cron.schedule('30 16 * * *', async () => {
     const daysLeft = getRemainingDays(TARGET_DATE);
     const message = 'Че там, @konurovjunior, летишь?';
     await sendMessage(message);
