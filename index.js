@@ -52,20 +52,23 @@ app.post('/webhook', async (req, res) => {
 
     if (text === '/left') {
         const days = formatTimeDifference(TARGET_DATE);
-        await sendMessage(chat_id, `🕒 До ${TARGET_DATE.toDateString()} осталось ${days}.`);
+        await sendMessage(`🕒 До ${TARGET_DATE.toDateString()} осталось ${days}.`, chat_id);
     }
 
     res.sendStatus(200);
 });
 
 // 📤 Отправка сообщений
-async function sendMessage(text) {
+async function sendMessage(text, chat_id = null) {
     const url = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`;
+    if (!chat_id) {
+        chat_id = process.env.CHAT_ID;
+    }
     await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            chat_id: process.env.CHAT_ID,
+            chat_id,
             text,
         }),
     });
