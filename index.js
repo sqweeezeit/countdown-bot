@@ -1,11 +1,36 @@
 const fetch = require('node-fetch');
 const express = require('express');
 const { CronJob } = require('cron');
+const bodyParser = require('body-parser');
 const app = express();
 
 if (!process.env.TELEGRAM_BOT_TOKEN || !process.env.CHAT_ID) {
     console.error('❌ TELEGRAM_BOT_TOKEN или CHAT_ID не установлены');
     process.exit(1);
+}
+
+// 🎯 Целевая дата
+const TARGET_DATE = new Date('2025-06-22');
+
+// 📅 Подсчёт оставшихся дней
+function getRemainingDays(target) {
+    const now = new Date();
+    const diffTime = target - now;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
+}
+
+function formatTimeDifference(targetDate) {
+    const now = new Date();
+    const diffMs = targetDate - now;
+
+    if (diffMs <= 0) return 'Время вышло';
+
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const days = Math.floor(diffMinutes / (60 * 24));
+    const hours = Math.floor((diffMinutes % (60 * 24)) / 60);
+    const minutes = diffMinutes % 60;
+
+    return `${days} дней ${hours} часов ${minutes} минут`;
 }
 
 const PORT = process.env.PORT || 3000;
@@ -15,16 +40,23 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log(`✅ Express server listening on port ${PORT}`);
 });
+app.use(bodyParser.json());
 
-// 🎯 Целевая дата
-const TARGET_DATE = new Date('2025-07-06');
+app.post('/webhook', async (req, res) => {
+    const message = req.body.message;
 
-// 📅 Подсчёт оставшихся дней
-function getRemainingDays(target) {
-    const now = new Date();
-    const diffTime = target - now;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) - 1;
-}
+    if (!message || !message.text) return res.sendStatus(200);
+
+    const chat_id = message.chat.id;
+    const text = message.text.trim();
+
+    if (text === '/left') {
+        const days = formatTimeDifference(TARGET_DATE);
+        await sendMessage(chat_id, `🕒 До ${TARGET_DATE.toDateString()} осталось ${days}.`);
+    }
+
+    res.sendStatus(200);
+});
 
 // 📤 Отправка сообщений
 async function sendMessage(text) {
