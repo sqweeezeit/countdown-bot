@@ -50,12 +50,12 @@ app.post('/webhook', async (req, res) => {
     const chat_id = message.chat.id;
     const text = message.text.trim();
 
-    if (text in ['/left', '/left@Countdown_Phuket_bot']) {
+    if (['/left', '/left@Countdown_Phuket_bot'].includes(text)) {
         const days = formatTimeDifference(TARGET_DATE);
         await sendMessage(`🕒 До ${TARGET_DATE.toDateString()} осталось ${days}.`, chat_id);
     }
 
-    if (text in ['/shop', '/shop@Countdown_Phuket_bot']) {
+    if (['/shop', '/shop@Countdown_Phuket_bot'].includes(text)) {
         const randomItem = phuketCoffeeshops[Math.floor(Math.random() * phuketCoffeeshops.length)];
         await sendMessage(`Предлагаю вам посетить прекрасный ${randomItem.name} в ${randomItem.location}, ` +
             `ведь это ${randomItem.description}. Подробнее: ${randomItem.url}`, chat_id);
