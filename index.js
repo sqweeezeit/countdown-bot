@@ -10,7 +10,7 @@ if (!process.env.TELEGRAM_BOT_TOKEN || !process.env.CHAT_ID) {
 }
 
 // 🎯 Целевая дата
-const TARGET_DATE = new Date(Date.UTC(2025, 5, 22, 19, 10, 0));
+const TARGET_DATE = new Date(Date.UTC(2025, 5, 21, 19, 10, 0));
 
 // 📅 Подсчёт оставшихся дней
 function getRemainingDays(target) {
